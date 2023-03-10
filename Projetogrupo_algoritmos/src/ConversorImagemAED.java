@@ -412,4 +412,9 @@ public class ConversorImagemAED {
 
     }
 
+    public BufferedImage getImagem() {
+        //System.out.println("oi");
+        return imagem;
+    }
+
 }
