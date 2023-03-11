@@ -9,6 +9,7 @@ import java.io.FileWriter;
 import java.security.PrivilegedActionException;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 // TODO: Filtros simples (Saturação etc) / Inserção de imagens(Watermarks) / Scramble / Média das cores com análise de "mood"
 public class MeuConversorImagem extends ConversorImagemAED{
     private BufferedImage imagem;
@@ -101,51 +102,48 @@ public class MeuConversorImagem extends ConversorImagemAED{
 
     public void ScrambleEffect(String urlImagemDestino) {
         Random r = new Random();
+        int ctr = 0;
+        long end, temponano, tempo;
+        long start;
         try {
             int imageWidth = imagem.getWidth();
             int imageHeight = imagem.getHeight();
             BufferedImage finalImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
-            
-            boolean[][] placedArray = new boolean[imageHeight][imageWidth]; // isso daqui vai guardar a posição de todos os pixeis
-            // ou seja
-            // nós podemos verificar se a posição está true, e caso esteja, já sabemos que botamos um pixel lá já
-            // assim não precisamos colocar uma imagem branca ou nada assim, porque já temos a informação necessária a evitar repetições
+            boolean[][] placedArray = new boolean[imageWidth][imageHeight];
             int x, y;
-            //Arrays.fill(placedArray, false);
-            for (int i = 0; i < imageHeight; i++) { // save colors
-                for (int j = 0; j < imageWidth; j++) {
+            start  = System.nanoTime();
+            for (int i = 0; i < imageWidth; i++) { // save colors
+                for (int j = 0; j < imageHeight; j++) {
                     placedArray[i][j] = false;
                 }
             }
-            
-            for (int i = 0; i < imageHeight; i++) { // save colors
-                for (int j = 0; j < imageWidth; j++) {
+            for (int i = 0; i < imageWidth; i++) { // save colors
+                for (int j = 0; j < imageHeight; j++) {
                   int cor = imagem.getRGB(i, j);
                   do{
+
+                    ctr ++;
                     x = r.nextInt(imageWidth);
                     y = r.nextInt(imageHeight);
-                    System.out.println(x+" "+y);
-                    if (placedArray[y][x] == false) {
-                        System.out.println("added");
+                    if (placedArray[x][y] == false) {
                         finalImage.setRGB(x, y, cor);
-                        placedArray[y][x] = true;
+                        placedArray[x][y] = true;
+                        break;
                     }
-                  } while(placedArray[y][x] == true);
+                  } while(placedArray[x][y] == true);
                 }
             }
-
+            end = System.nanoTime();
+            temponano = end - start;
+            tempo = TimeUnit.MILLISECONDS.convert(temponano, TimeUnit.NANOSECONDS);
             ImageIO.write(finalImage, "jpg", new File(urlImagemDestino));
-            System.out.println("Imagem mexida! woOOooOOOoooOoooOoo");
+            System.out.println("Iterações = "+ctr+"; Tempo demorado = "+tempo+" miliseconds");
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
-
-
-
     }
+
     public void GetMoodColor(String urlurlImagemDestino){}
     
 
