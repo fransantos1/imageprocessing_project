@@ -121,7 +121,6 @@ public class MeuConversorImagem extends ConversorImagemAED{
                 for (int j = 0; j < imageHeight; j++) {
                   int cor = imagem.getRGB(i, j);
                   do{
-
                     ctr ++;
                     x = r.nextInt(imageWidth);
                     y = r.nextInt(imageHeight);
